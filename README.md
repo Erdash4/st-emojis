@@ -12,6 +12,7 @@ A SillyTavern UI extension that lets you upload your own emoji images and use th
 - Persistent settings stored in SillyTavern
 - Works with plain text tokens like `:true:`
 
+
 ## How it works
 
 Add an emoji named `true`, then type:
@@ -29,11 +30,5 @@ Copy the folder into your SillyTavern third-party extensions directory, then ena
 - Emoji images are stored in extension settings as data URLs when uploaded.
 - The model still receives the text token unless you separately modify prompt text processing.
 - This extension only changes how messages are displayed in the chat UI.
+- Message streaming is broken, so you'll have to disable it to use the extension.
 
-
-## v2 fixes
-
-- Shortcode inputs no longer re-render on every keystroke.
-- File uploads are handled separately from text input events.
-- Chat scanning no longer rewrites stored HTML, which prevents edit/streaming breakage.
-- Text inputs now use a black background for readability.
