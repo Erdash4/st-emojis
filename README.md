@@ -11,6 +11,7 @@ A SillyTavern UI extension that lets you upload your own emoji images and use th
 - Paste image URLs or data URLs
 - Render custom emoji shortcodes in user and bot messages
 - Persistent settings stored in SillyTavern
+- GIF support
 - Works with plain text tokens like `:true:`
 
 
