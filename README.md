@@ -15,6 +15,9 @@ A SillyTavern UI extension that lets you upload your own emoji images and use th
 - Works with plain text tokens like `:true:`
 
 
+:warning: Message streaming is broken, so you'll have to disable it to use the extension.
+
+
 ## How it works
 
 Add an emoji named `true`, then type:
@@ -32,5 +35,4 @@ Copy this extension's github link: `https://github.com/Erdash4/st-emojis/`, go t
 - Emoji images are stored in extension settings as data URLs when uploaded.
 - The model still receives the text token unless you separately modify prompt text processing.
 - This extension only changes how messages are displayed in the chat UI.
-- Message streaming is broken, so you'll have to disable it to use the extension.
 
