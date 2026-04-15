@@ -14,7 +14,7 @@ A SillyTavern UI extension that lets you upload your own emoji images and use th
 
 Add an emoji named `true`, then type:
 
-`I agree :true:`
+`valid tbh :true:`
 
 The chat renderer will replace that token with the uploaded image.
 
