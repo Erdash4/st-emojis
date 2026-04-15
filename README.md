@@ -35,4 +35,5 @@ Copy this extension's github link: `https://github.com/Erdash4/st-emojis/`, go t
 - Emoji images are stored in extension settings as data URLs when uploaded.
 - The model still receives the text token unless you separately modify prompt text processing.
 - This extension only changes how messages are displayed in the chat UI.
+- It's recommended you describe each of your custom emojis in the context somewhere so bots can use them correctly.
 
