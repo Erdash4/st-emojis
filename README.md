@@ -1,6 +1,10 @@
+<img width="1156" height="824" alt="image" src="https://github.com/user-attachments/assets/9380dd43-f093-47f4-be1a-535c84db5833" />
 # Custom Emojis for SillyTavern
 
 A SillyTavern UI extension that lets you upload your own emoji images and use them in chat with shortcodes like `:true:`.
+
+![Uploading image.png…]()
+
 
 ## Features
 
