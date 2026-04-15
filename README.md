@@ -28,7 +28,7 @@ The chat renderer will replace that token with the uploaded image.
 
 ## Installation
 
-Copy this extension's github link: `https://github.com/Erdash4/st-emojis/`, go to extensions, click on the "Install Extension" button located on the top right and paste this into the first text field. Click on 'Install for this user' / 'Install just for me'.
+Copy this extension's GitHub URL: `https://github.com/Erdash4/st-emojis/`, go to extensions, click on the "Install Extension" button located on the top right and paste the URL into the first text field. Click on either 'Install for this user' or 'Install just for me'.
 
 ## Notes
 
