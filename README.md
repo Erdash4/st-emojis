@@ -7,7 +7,7 @@ A SillyTavern UI extension that lets you upload your own emoji images and use th
 ## Features
 
 - Upload images from your computer
-- Standard emojis can also be used in shortcode. (Example: `:grin:`)
+- Standard emojis can also be used in shortcode. (Example: `:grin:` --> :grin:)
 - Paste image URLs or data URLs
 - Render custom emoji shortcodes in user and bot messages
 - Persistent settings stored in SillyTavern
