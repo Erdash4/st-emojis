@@ -24,7 +24,7 @@ The chat renderer will replace that token with the uploaded image.
 
 ## Installation
 
-Copy the folder into your SillyTavern third-party extensions directory, then enable the extension in the Extensions panel.
+Copy this extension's github link: `https://github.com/Erdash4/st-emojis/`, go to extensions, click on the "Install Extension" button located on the top right and paste this into the first text field. 
 
 ## Notes
 
