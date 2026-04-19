@@ -2,7 +2,7 @@
 
 A SillyTavern UI extension that lets you upload your own emoji images and use them in chat with Discord-esque shortcodes like `:true:`.  
 
-<img width="389" height="412" alt="image" src="https://github.com/user-attachments/assets/9380dd43-f093-47f4-be1a-535c84db5833" />
+<img alt="Example showing custom emojis being used both by the user and a bot." src="https://github.com/user-attachments/assets/9380dd43-f093-47f4-be1a-535c84db5833" />
 
 ## Features
 
@@ -13,9 +13,6 @@ A SillyTavern UI extension that lets you upload your own emoji images and use th
 - Persistent settings stored in SillyTavern
 - GIF support
 - Works with plain text tokens like `:true:`
-
-
-:warning: Message streaming is broken, so you'll have to disable it to use the extension.
 
 
 ## How it works
