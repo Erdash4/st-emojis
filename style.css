@@ -19,11 +19,34 @@
     user-select: none;
 }
 
+/* ── Reaction image size row ──────────────────────────────────────────────── */
+
+.st-custom-emoji-size-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+}
+
+.st-custom-emoji-size-label {
+    font-size: 0.9em;
+    opacity: 0.85;
+}
+
+.st-custom-emoji-size-slider {
+    width: 100%;
+    accent-color: var(--SmartThemeQuoteColor, #7289da);
+}
+
+/* ── Help text ────────────────────────────────────────────────────────────── */
+
 .st-custom-emoji-help {
     opacity: 0.85;
     font-size: 0.95em;
     margin-bottom: 0.75rem;
 }
+
+/* ── Emoji list ───────────────────────────────────────────────────────────── */
 
 .st-custom-emoji-list {
     display: flex;
@@ -121,6 +144,8 @@
     flex: 0 0 auto;
 }
 
+/* ── Inline emoji ─────────────────────────────────────────────────────────── */
+
 .st-custom-emoji {
     display: inline-block;
     width: 1.15em;
@@ -128,6 +153,32 @@
     vertical-align: -0.2em;
     object-fit: contain;
 }
+
+/* ── Reaction images ──────────────────────────────────────────────────────── */
+
+.st-reaction-images {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.st-reaction-image {
+    display: block;
+    width: var(--st-reaction-image-size, 120px);
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+/* Hide reaction images when the toggle is off */
+.st-reaction-images-disabled .st-reaction-images {
+    display: none;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 720px) {
     .st-custom-emoji-row-body {

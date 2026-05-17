@@ -7,7 +7,9 @@
 
     const DEFAULT_SETTINGS = Object.freeze({
         enabled: true,
-        emojis: []
+        emojis: [],
+        reactionImagesEnabled: true,
+        reactionImageSize: 120,
     });
 
     let initialized = false;
@@ -133,7 +135,11 @@
             return true;
         }
 
-        return Boolean(parent.closest('code, pre, textarea, script, style, noscript, .st-custom-emoji, .st-custom-emoji-settings, [contenteditable="true"], [contenteditable=""]'));
+        return Boolean(parent.closest(
+            'code, pre, textarea, script, style, noscript, ' +
+            '.st-custom-emoji, .st-custom-emoji-settings, .st-reaction-images, ' +
+            '[contenteditable="true"], [contenteditable=""]'
+        ));
     }
 
     function replaceTextNodeWithEmojis(textNode, regex) {
@@ -203,6 +209,116 @@
         }
     }
 
+    // ─── Reaction Images ────────────────────────────────────────────────────────
+
+    // Matches <:anything-except-colon-or->:>  e.g.  <:isheserious:>
+    const REACTION_REGEX = /<:([^:>\r\n]+):>/g;
+
+    function applyReactionImageSize() {
+        const size = Number(getSettings().reactionImageSize) || 120;
+        document.documentElement.style.setProperty('--st-reaction-image-size', `${size}px`);
+    }
+
+    function syncReactionState() {
+        const enabled = getSettings().reactionImagesEnabled !== false;
+        document.body.classList.toggle('st-reaction-images-disabled', !enabled);
+        const checkbox = document.querySelector('#st_reaction_images_enabled');
+        if (checkbox) {
+            checkbox.checked = enabled;
+        }
+    }
+
+    /**
+     * Extracts all <:shortcode:> tokens from the text nodes inside messageEl,
+     * removes them from their original positions, then appends a stacked
+     * .st-reaction-images block at the end of the message element.
+     *
+     * This always runs (regardless of reactionImagesEnabled) so tokens are
+     * scrubbed from the visible text. The body CSS class controls visibility.
+     */
+    function processReactionImages(messageEl) {
+        if (!messageEl) return;
+
+        // Snapshot text nodes before mutating (live TreeWalker would break).
+        const walker = document.createTreeWalker(messageEl, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        let cur = walker.nextNode();
+        while (cur) {
+            if (!shouldSkipNode(cur)) {
+                textNodes.push(cur);
+            }
+            cur = walker.nextNode();
+        }
+
+        const collectedEmojis = [];
+
+        for (const textNode of textNodes) {
+            const text = textNode.nodeValue ?? '';
+            if (!text) continue;
+
+            REACTION_REGEX.lastIndex = 0;
+            const matches = [...text.matchAll(REACTION_REGEX)];
+            if (!matches.length) continue;
+
+            const frag = document.createDocumentFragment();
+            let lastIndex = 0;
+            let foundValid = false;
+
+            for (const match of matches) {
+                const matchIndex = match.index ?? 0;
+                const shortcode = sanitizeShortcode(match[1]);
+                const emoji = getEmojiByShortcode(shortcode);
+
+                if (!emoji) {
+                    // Unknown shortcode — leave its text in place and move on.
+                    continue;
+                }
+
+                // Text before this token.
+                if (matchIndex > lastIndex) {
+                    frag.appendChild(document.createTextNode(text.slice(lastIndex, matchIndex)));
+                }
+
+                collectedEmojis.push(emoji);
+                lastIndex = matchIndex + match[0].length;
+                foundValid = true;
+            }
+
+            if (!foundValid) continue;
+
+            // Trailing text after the last valid token.
+            if (lastIndex < text.length) {
+                frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+            }
+
+            textNode.parentNode?.replaceChild(frag, textNode);
+        }
+
+        if (!collectedEmojis.length) return;
+
+        // Remove any existing reaction images block to avoid duplication on re-scan.
+        messageEl.querySelector('.st-reaction-images')?.remove();
+
+        const container = document.createElement('div');
+        container.className = 'st-reaction-images';
+
+        for (const emoji of collectedEmojis) {
+            const img = document.createElement('img');
+            img.className = 'st-reaction-image';
+            img.src = emoji.src;
+            img.alt = `<:${emoji.shortcode}:>`;
+            img.title = `:${emoji.shortcode}:`;
+            img.setAttribute('data-shortcode', emoji.shortcode);
+            img.setAttribute('loading', 'lazy');
+            img.decoding = 'async';
+            container.appendChild(img);
+        }
+
+        messageEl.appendChild(container);
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+
     function prepareMessageElement(messageEl) {
         if (!messageEl || messageEl.nodeType !== Node.ELEMENT_NODE) {
             return;
@@ -216,6 +332,9 @@
             return;
         }
 
+        // Reaction images first: their tokens must be consumed before the inline
+        // emoji pass so <:shortcode:> is not partially matched by :shortcode:.
+        processReactionImages(messageEl);
         renderEmojiTokens(messageEl);
     }
 
@@ -235,21 +354,6 @@
         } finally {
             isApplyingChatRender = false;
         }
-    }
-
-    function restoreChatOriginals() {
-        const chatRoot = document.querySelector('#chat');
-        if (!chatRoot) {
-            return;
-        }
-
-        const emojis = getActiveEmojis();
-        if (!emojis.length) {
-            return;
-        }
-
-        // Re-scan once to allow the DOM to settle after toggling.
-        queueScan();
     }
 
     function queueScan() {
@@ -342,6 +446,7 @@
         }
 
         const settings = getSettings();
+        const reactionSize = Number(settings.reactionImageSize) || 120;
 
         const panel = document.createElement('div');
         panel.id = PANEL_ID;
@@ -356,7 +461,11 @@
                 <div class="st-custom-emoji-toolbar">
                     <label class="st-custom-emoji-switch">
                         <input type="checkbox" id="st_custom_emojis_enabled" ${settings.enabled ? 'checked' : ''} />
-                        <span>Enable custom emoji rendering</span>
+                        <span>Enable emoji rendering</span>
+                    </label>
+                    <label class="st-custom-emoji-switch">
+                        <input type="checkbox" id="st_reaction_images_enabled" ${settings.reactionImagesEnabled !== false ? 'checked' : ''} />
+                        <span>Enable reaction images</span>
                     </label>
                     <button type="button" class="menu_button" id="st_custom_emojis_add">
                         <i class="fa-solid fa-plus"></i>
@@ -364,8 +473,23 @@
                     </button>
                 </div>
 
+                <div class="st-custom-emoji-size-row">
+                    <span class="st-custom-emoji-size-label">
+                        Reaction image size: <b id="st_reaction_image_size_value">${reactionSize}px</b>
+                    </span>
+                    <input
+                        type="range"
+                        id="st_reaction_image_size"
+                        class="st-custom-emoji-size-slider"
+                        min="40"
+                        max="400"
+                        step="10"
+                        value="${reactionSize}"
+                    />
+                </div>
+
                 <div class="st-custom-emoji-help">
-                    Use tokens like <code>:true:</code> in user messages or bot replies.
+                    Inline emoji: <code>:shortcode:</code> &nbsp;&middot;&nbsp; Reaction image: <code>&lt;:shortcode:&gt;</code>
                 </div>
 
                 <div id="st_custom_emojis_list" class="st-custom-emoji-list"></div>
@@ -374,12 +498,31 @@
 
         host.appendChild(panel);
 
+        // ── Main enabled toggle ────────────────────────────────────────────────
         panel.querySelector('#st_custom_emojis_enabled')?.addEventListener('change', (event) => {
             getSettings().enabled = Boolean(event.target.checked);
             saveSettings();
             syncEnabledState();
         });
 
+        // ── Reaction images enabled toggle ─────────────────────────────────────
+        panel.querySelector('#st_reaction_images_enabled')?.addEventListener('change', (event) => {
+            getSettings().reactionImagesEnabled = Boolean(event.target.checked);
+            saveSettings();
+            syncReactionState();
+        });
+
+        // ── Reaction image size slider ─────────────────────────────────────────
+        panel.querySelector('#st_reaction_image_size')?.addEventListener('input', (event) => {
+            const size = Number(event.target.value) || 120;
+            getSettings().reactionImageSize = size;
+            saveSettings();
+            const label = document.querySelector('#st_reaction_image_size_value');
+            if (label) label.textContent = `${size}px`;
+            applyReactionImageSize();
+        });
+
+        // ── Add emoji button ───────────────────────────────────────────────────
         panel.querySelector('#st_custom_emojis_add')?.addEventListener('click', () => {
             const settings = getSettings();
             const n = settings.emojis.length + 1;
@@ -449,6 +592,11 @@
             return;
         }
 
+        // Size slider handled by its own dedicated listener.
+        if (target.id === 'st_reaction_image_size') {
+            return;
+        }
+
         if (target.closest('.st-custom-emoji-file')) {
             return;
         }
@@ -458,13 +606,7 @@
             return;
         }
 
-        const emoji = updateEmojiEntryFromRow(row);
-        if (!emoji) {
-            return;
-        }
-
-        // Keep typing smooth; only persist the raw value on input.
-        // The visible row is refreshed when the field loses focus or changes.
+        updateEmojiEntryFromRow(row);
     }
 
     function handlePanelChange(event) {
@@ -572,6 +714,8 @@
 
     async function initUi() {
         ensurePanel();
+        applyReactionImageSize();
+        syncReactionState();
         queueScan();
         attachObserver();
     }
@@ -607,6 +751,7 @@
         ctx.eventSource?.on?.(ctx.event_types?.APP_READY, onReady);
         ctx.eventSource?.on?.(ctx.event_types?.CHAT_CHANGED, () => {
             syncEnabledState();
+            syncReactionState();
             queueScan();
         });
 
