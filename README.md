@@ -2,6 +2,8 @@
 
 A SillyTavern UI extension that lets you upload your own emoji images and use them in chat — as small inline emojis or as large stacked reaction images.
 
+<img width="40%" alt="image" src="https://github.com/user-attachments/assets/d81006b6-4a56-4f9c-854f-2771eb8dcd64" />
+
 ## Features
 
 - **Inline emojis** — use `:shortcode:` to place a small inline image mid-sentence
